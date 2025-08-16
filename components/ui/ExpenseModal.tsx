@@ -1,7 +1,7 @@
 "use client";
 import { Expense } from "@/types";
 import { X } from "lucide-react";
-import { SetStateAction, useState } from "react";
+import { SetStateAction } from "react";
 import { toast } from "sonner";
 
 interface ExpenseModalProps {

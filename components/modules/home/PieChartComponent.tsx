@@ -8,7 +8,6 @@ import {
 	ResponsiveContainer,
 	Tooltip,
 } from "recharts";
-type TooltipPayload = ReadonlyArray<any>;
 
 type Coordinate = {
 	x: number;
@@ -24,8 +23,6 @@ type PieSectorData = {
 	value?: number;
 	paddingAngle?: number;
 	dataKey?: string;
-	payload?: any;
-	tooltipPayload?: ReadonlyArray<TooltipPayload>;
 };
 
 type GeometrySector = {
@@ -37,10 +34,7 @@ type GeometrySector = {
 	endAngle: number;
 };
 
-type PieLabelProps = PieSectorData &
-	GeometrySector & {
-		tooltipPayload?: any;
-	};
+type PieLabelProps = PieSectorData & GeometrySector;
 
 const COLORS = [
 	"#8884d8",
@@ -78,7 +72,11 @@ const renderCustomizedLabel = ({
 	);
 };
 
-export default function PieChartComponent({expenses}: {expenses: Expense[]}) {
+export default function PieChartComponent({
+	expenses,
+}: {
+	expenses: Expense[];
+}) {
 	// Calculate category totals for pie chart
 	const categoryTotals = expenses.reduce(
 		(acc: Record<string, number>, expense) => {

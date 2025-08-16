@@ -1,4 +1,3 @@
-import { Expense } from "@/types";
 import { Filter, Plus } from "lucide-react";
 import { SetStateAction } from "react";
 

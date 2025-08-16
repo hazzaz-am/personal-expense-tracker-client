@@ -1,9 +1,7 @@
-import { handleDeleteExpense } from "@/data/expense";
 import { Expense } from "@/types";
 import { deleteExpenseToast } from "@/utility/deleteExpenseToast";
 import { formatDate } from "@/utility/formatDate";
 import { Edit3, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 
 interface IProps {
 	expenses: Expense[];
