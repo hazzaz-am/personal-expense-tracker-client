@@ -2,6 +2,7 @@
 import { Expense } from "@/types";
 import { X } from "lucide-react";
 import { SetStateAction, useState } from "react";
+import { toast } from "sonner";
 
 interface ExpenseModalProps {
 	isOpen: boolean;
@@ -37,6 +38,15 @@ export const ExpenseModal = ({
 }: ExpenseModalProps) => {
 	const handleSubmit = () => {
 		if (expense) {
+			if (
+				formData.title === "" ||
+				formData.amount === "" ||
+				formData.category === "" ||
+				formData.date === ""
+			) {
+				toast.error("Please fill in all fields.");
+				return;
+			}
 			onSubmit({
 				...formData,
 				amount: parseFloat(formData.amount),
@@ -52,12 +62,21 @@ export const ExpenseModal = ({
 
 			onClose();
 		} else {
+			if (
+				formData.title === "" ||
+				formData.amount === "" ||
+				formData.category === "" ||
+				formData.date === ""
+			) {
+				toast.error("Please fill in all fields.");
+				return;
+			}
 			onSubmit({
 				...formData,
 				amount: parseFloat(formData.amount),
 			});
 		}
-		onClose()
+		onClose();
 	};
 
 	const handleClose = () => {
