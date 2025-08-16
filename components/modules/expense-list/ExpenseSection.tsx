@@ -8,6 +8,11 @@ import ListHeader from "./ListHeader";
 import MobileCardView from "./MobileCardView";
 import { ExpenseModal } from "@/components/ui/ExpenseModal";
 import { Expense } from "@/types";
+import {
+	getAllExpenses,
+	handleAddExpense,
+	handleUpdateExpense,
+} from "@/data/expense";
 
 export default function ExpenseSection() {
 	const [showFilters, setShowFilters] = useState(false);
@@ -37,58 +42,27 @@ export default function ExpenseSection() {
 	const queryParams = new URLSearchParams(params).toString();
 
 	useEffect(() => {
-		const getAllExpenses = async () => {
-			try {
-				const res = await fetch(
-					`${process.env.NEXT_PUBLIC_API_URL}/expenses?${queryParams}`
-				);
-
-				if (!res.ok) {
-					throw new Error(`Server Error: ${res.status} ${res.statusText}`);
-				}
-
-				const result = await res.json();
-				console.log(result);
+		const fetchData = async () => {
+			const result = await getAllExpenses(queryParams);
+			if (result && !result.error) {
 				setExpenses(result.data);
 				setMetaData(result.meta);
-			} catch (error) {
-				// console.error("Failed to fetch expenses:", error.message);
-				if (error instanceof Error) {
-					return { error: true, message: error.message };
-				} else {
-					return { error: true, message: "An unknown error occurred." };
-				}
 			}
 		};
-
-		getAllExpenses();
+		fetchData();
 	}, [queryParams]);
 
-	const handleExpenseSubmit = (expenseData: Expense) => {
+	const handleExpenseSubmit = (expenseData: Partial<Expense>) => {
 		console.log(expenseData);
-		// if (editingExpense) {
-		// 	// Update existing expense
-		// 	setExpenses(
-		// 		expenses.map((expense) =>
-		// 			expense.id === editingExpense.id ? expenseData : expense
-		// 		)
-		// 	);
-		// 	setEditingExpense(null);
-		// } else {
-		// 	// Add new expense
-		// 	setExpenses([...expenses, expenseData]);
-		// }
-	};
-
-	const handleAddExpense = () => {
-		setFormData({
-			title: "",
-			amount: "",
-			category: "Food",
-			date: new Date().toISOString().split("T")[0],
-		});
-		setEditingExpense(null);
-		setIsModalOpen(true);
+		if (editingExpense) {
+			// Update existing expense
+			handleUpdateExpense(editingExpense._id, expenseData);
+			setEditingExpense(null);
+		} else {
+			// Add new expense
+			handleAddExpense(expenseData);
+			console.log(expenseData);
+		}
 	};
 
 	const handleEditExpense = (expense: Expense) => {
@@ -102,10 +76,6 @@ export default function ExpenseSection() {
 		setIsModalOpen(true);
 	};
 
-	const handleDeleteExpense = (id: string) => {
-		setExpenses(expenses.filter((expense) => expense._id !== id));
-	};
-
 	const handleCloseModal = () => {
 		setIsModalOpen(false);
 		setEditingExpense(null);
@@ -114,9 +84,10 @@ export default function ExpenseSection() {
 	return (
 		<>
 			<ListHeader
-				handleAddExpense={handleAddExpense}
 				onShowFilters={() => setShowFilters(!showFilters)}
-				expenses={expenses}
+				onModalOpen={() => setIsModalOpen(true)}
+				onSetEditingExpense={() => setEditingExpense(null)}
+				onAddFormData={setFormData}
 				meta={metaData}
 			/>
 			{showFilters && (
@@ -130,12 +101,8 @@ export default function ExpenseSection() {
 					expenses={expenses}
 				/>
 			)}
-			<DesktopTableView
-				expenses={expenses}
-				onHandleDelete={handleDeleteExpense}
-				onHandleEdit={handleEditExpense}
-			/>
-			{/* <MobileCardView /> */}
+			<DesktopTableView expenses={expenses} onHandleEdit={handleEditExpense} />
+			<MobileCardView expenses={expenses} onHandleEdit={handleEditExpense} />
 			<EmptyState expenses={expenses} />
 			<ExpenseModal
 				isOpen={isModalOpen}

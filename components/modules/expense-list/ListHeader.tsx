@@ -1,22 +1,43 @@
 import { Expense } from "@/types";
 import { Filter, Plus } from "lucide-react";
+import { SetStateAction } from "react";
 
 interface IProps {
-	handleAddExpense: () => void;
+	onAddFormData: (
+		value: SetStateAction<{
+			title: string;
+			amount: string;
+			category: string;
+			date: string;
+		}>
+	) => void;
 	onShowFilters: () => void;
-	expenses: Expense[];
 	meta: {
 		totalDocuments: number;
 		totalAmount: number;
 	} | null;
+	onModalOpen: () => void;
+	onSetEditingExpense: () => void;
 }
 
 export default function ListHeader({
-	handleAddExpense,
 	onShowFilters,
-	expenses,
 	meta,
+	onAddFormData,
+	onModalOpen,
+	onSetEditingExpense,
 }: IProps) {
+	const handleAddExpense = () => {
+		onAddFormData({
+			title: "",
+			amount: "",
+			category: "Food",
+			date: new Date().toISOString().split("T")[0],
+		});
+		onSetEditingExpense();
+		onModalOpen();
+	};
+
 	return (
 		<>
 			<div className="bg-gray-50 px-6 py-4 border-b border-gray-200">

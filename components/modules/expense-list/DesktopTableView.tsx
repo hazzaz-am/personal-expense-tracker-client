@@ -1,14 +1,20 @@
+import { handleDeleteExpense } from "@/data/expense";
 import { Expense } from "@/types";
+import { deleteExpenseToast } from "@/utility/deleteExpenseToast";
 import { formatDate } from "@/utility/formatDate";
 import { Edit3, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface IProps {
 	expenses: Expense[];
 	onHandleEdit: (expense: Expense) => void;
-	onHandleDelete: (id: string) => void;
 }
 
-export default function DesktopTableView({expenses, onHandleEdit, onHandleDelete}: IProps) {
+export default function DesktopTableView({ expenses, onHandleEdit }: IProps) {
+	const handleDelete = (id: string, title: string) => {
+		deleteExpenseToast(id, title);
+	};
+
 	return (
 		<div className="hidden md:block overflow-x-auto">
 			<table className="w-full">
@@ -33,7 +39,10 @@ export default function DesktopTableView({expenses, onHandleEdit, onHandleDelete
 				</thead>
 				<tbody className="bg-white divide-y divide-gray-200">
 					{expenses.map((expense) => (
-						<tr key={expense._id} className="hover:bg-gray-50 transition-colors">
+						<tr
+							key={expense._id}
+							className="hover:bg-gray-50 transition-colors"
+						>
 							<td className="px-6 py-4 whitespace-nowrap">
 								<div className="text-sm font-medium text-gray-900">
 									{expense.title}
@@ -62,7 +71,7 @@ export default function DesktopTableView({expenses, onHandleEdit, onHandleDelete
 										Edit
 									</button>
 									<button
-										onClick={() => onHandleDelete(expense._id)}
+										onClick={() => handleDelete(expense._id, expense.title)}
 										className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-md text-red-600 bg-red-100 hover:bg-red-200 transition-colors"
 									>
 										<Trash2 className="w-3 h-3 mr-1" />

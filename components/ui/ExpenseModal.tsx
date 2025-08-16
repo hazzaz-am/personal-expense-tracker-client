@@ -6,7 +6,7 @@ import { SetStateAction, useState } from "react";
 interface ExpenseModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (expense: Expense) => void;
+	onSubmit: (expense: Partial<Expense>) => void;
 	expense?: Expense | null;
 	title: string;
 	formData: {
@@ -36,22 +36,28 @@ export const ExpenseModal = ({
 	onAddFormData,
 }: ExpenseModalProps) => {
 	const handleSubmit = () => {
-		// if (formData.title && formData.amount) {
-		//   onSubmit({
-		//     ...formData,
-		//     amount: parseFloat(formData.amount),
-		//     id: expense?.id || Date.now(),
-		//   });
-		//   if (!expense) {
-		//     setFormData({
-		//       title: "",
-		//       amount: "",
-		//       category: "Food",
-		//       date: new Date().toISOString().split("T")[0],
-		//     });
-		//   }
-		//   onClose();
-		// }
+		if (expense) {
+			onSubmit({
+				...formData,
+				amount: parseFloat(formData.amount),
+				_id: expense._id,
+			});
+
+			onAddFormData({
+				title: "",
+				amount: "",
+				category: "Food",
+				date: new Date().toISOString().split("T")[0],
+			});
+
+			onClose();
+		} else {
+			onSubmit({
+				...formData,
+				amount: parseFloat(formData.amount),
+			});
+		}
+		onClose()
 	};
 
 	const handleClose = () => {
