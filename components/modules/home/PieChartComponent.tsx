@@ -1,4 +1,5 @@
 "use client";
+import { Expense } from "@/types";
 import {
 	Cell,
 	Legend,
@@ -77,21 +78,21 @@ const renderCustomizedLabel = ({
 	);
 };
 
-export default function PieChartComponent() {
+export default function PieChartComponent({expenses}: {expenses: Expense[]}) {
 	// Calculate category totals for pie chart
-	// const categoryTotals = expenses.reduce(
-	// 	(acc: Record<string, number>, expense) => {
-	// 		acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
-	// 		return acc;
-	// 	},
-	// 	{}
-	// );
-	const categoryTotals = {
-		Entertainment: 28,
-		Food: 90.25,
-		Transportation: 45,
-		Utilities: 120.3,
-	};
+	const categoryTotals = expenses.reduce(
+		(acc: Record<string, number>, expense) => {
+			acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+			return acc;
+		},
+		{}
+	);
+	// const categoryTotals = {
+	// 	Entertainment: 28,
+	// 	Food: 90.25,
+	// 	Transportation: 45,
+	// 	Utilities: 120.3,
+	// };
 
 	const pieData = Object.entries(categoryTotals).map(([category, amount]) => ({
 		name: category,

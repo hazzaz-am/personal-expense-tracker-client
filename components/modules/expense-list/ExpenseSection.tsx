@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import DesktopTableView from "./DesktopTableView";
-import EmptyState from "./EmptyState";
-import FilterSection from "./FilterSection";
-import ListHeader from "./ListHeader";
-import MobileCardView from "./MobileCardView";
 import { ExpenseModal } from "@/components/ui/ExpenseModal";
-import { Expense } from "@/types";
 import {
 	getAllExpenses,
 	handleAddExpense,
 	handleUpdateExpense,
 } from "@/data/expense";
+import { Expense } from "@/types";
+import { useEffect, useState } from "react";
+import DesktopTableView from "./DesktopTableView";
+import EmptyState from "./EmptyState";
+import ExpenseListSkeleton from "./ExpenseListSkeleton";
+import FilterSection from "./FilterSection";
+import ListHeader from "./ListHeader";
+import MobileCardView from "./MobileCardView";
 
 export default function ExpenseSection() {
 	const [showFilters, setShowFilters] = useState(false);
@@ -22,6 +23,7 @@ export default function ExpenseSection() {
 	const [startDate, setStartDate] = useState<string>("");
 	const [endDate, setEndDate] = useState<string>("");
 	const [expenses, setExpenses] = useState<Expense[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 	const [metaData, setMetaData] = useState<{
 		totalDocuments: number;
 		totalAmount: number;
@@ -43,26 +45,38 @@ export default function ExpenseSection() {
 
 	useEffect(() => {
 		const fetchData = async () => {
+			setIsLoading(true);
 			const result = await getAllExpenses(queryParams);
 			if (result && !result.error) {
 				setExpenses(result.data);
 				setMetaData(result.meta);
 			}
+			setIsLoading(false);
 		};
 		fetchData();
 	}, [queryParams]);
 
-	const handleExpenseSubmit = (expenseData: Partial<Expense>) => {
+	const handleExpenseSubmit = async (expenseData: Partial<Expense>) => {
 		console.log(expenseData);
+		setIsLoading(true);
+
 		if (editingExpense) {
 			// Update existing expense
-			handleUpdateExpense(editingExpense._id, expenseData);
+			await handleUpdateExpense(editingExpense._id, expenseData);
 			setEditingExpense(null);
 		} else {
 			// Add new expense
-			handleAddExpense(expenseData);
+			await handleAddExpense(expenseData);
 			console.log(expenseData);
 		}
+
+		// Refresh data after submission
+		const result = await getAllExpenses(queryParams);
+		if (result && !result.error) {
+			setExpenses(result.data);
+			setMetaData(result.meta);
+		}
+		setIsLoading(false);
 	};
 
 	const handleEditExpense = (expense: Expense) => {
@@ -101,8 +115,22 @@ export default function ExpenseSection() {
 					expenses={expenses}
 				/>
 			)}
-			<DesktopTableView expenses={expenses} onHandleEdit={handleEditExpense} />
-			<MobileCardView expenses={expenses} onHandleEdit={handleEditExpense} />
+
+			{isLoading ? (
+				<ExpenseListSkeleton />
+			) : (
+				<>
+					<DesktopTableView
+						expenses={expenses}
+						onHandleEdit={handleEditExpense}
+					/>
+					<MobileCardView
+						expenses={expenses}
+						onHandleEdit={handleEditExpense}
+					/>
+				</>
+			)}
+
 			<EmptyState expenses={expenses} />
 			<ExpenseModal
 				isOpen={isModalOpen}
